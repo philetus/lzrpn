@@ -20,56 +20,46 @@ function pwpw() {
 
   console.log("creating earring");
 
-  // var dlny = new lzr.dlny();
-  // var i = 0;
-  // var attmpts = 0;
-  // // while (i < 17 && attmpts < 10000) {
-  // while (attmpts < 10000) {
-  //   attmpts++;
-  //   var vrt = vec2.fromValues(
-  //      (Math.random() * sz[0]) + mn[0],
-  //      (Math.random() * sz[1]) + mn[1]);
-  //   var clst = dlny.get_closest(vrt);
-  //   if (clst === null || vec2.dist(vrt, clst) > mndst) {
-  //     dlny.vrts.push(vrt);
-  //     console.log(i + " " + vrt);
-  //     var r = new lzr.rng();
-  //     r.rgba = [0.0, 1.0, 0.0, 0.5]; // reddish
-  //     r.center = vec2.clone(vrt);
-  //     r.radius = 16.0;
-  //     r.weight = 6.0;
-  //     r.segments = 32;
-  //     rndrr.mshs.push(r);
-  //     i++;
-  //   }
-  // }
-  // console.log("generated " + i + " vertices in " + attmpts + " attempts");
-  // var x = i / 2;
-  // for (var i = 0; i < x; i++) dlny.vrts.pop();
-  //
-  // dlny.triangulate();
-  //
-  // console.log("triangulated delaunay!");
-  //
-  // for (var i = 0; i < dlny.trngls.length; i++) {
-  //   var t = dlny.trngls[i];
-  //   t.rgba = [0.0, 0.0, 0.5, 0.3];
-  //   rndrr.mshs.push(t);
-  //   var ot = t.offset(-4.0);
-  //   ot.rgba = [1.0, 0.0, 0.0, 0.5];
-  //   rndrr.mshs.push(ot);
-  // }
+  var dlny = new lzr.dlny();
+  var i = 0;
+  var attmpts = 0;
+  // while (i < 17 && attmpts < 10000) {
+  while (attmpts < 10000) {
+    attmpts++;
+    var vrt = vec2.fromValues(
+       (Math.random() * sz[0]) + mn[0],
+       (Math.random() * sz[1]) + mn[1]);
+    var clst = dlny.get_closest(vrt);
+    if (clst === null || vec2.dist(vrt, clst) > mndst) {
+      dlny.vrts.push(vrt);
+      console.log(i + " " + vrt);
+      var r = new lzr.rng();
+      r.rgba = [0.0, 1.0, 0.0, 0.5]; // reddish
+      r.center = vec2.clone(vrt);
+      r.radius = 16.0;
+      r.weight = 6.0;
+      r.segments = 32;
+      rndrr.mshs.push(r);
+      i++;
+    }
+  }
+  console.log("generated " + i + " vertices in " + attmpts + " attempts");
+  var x = i / 2;
+  for (var i = 0; i < x; i++) dlny.vrts.pop();
 
-  // create earring
-  errng = new mwstr.errng();
+  dlny.triangulate();
 
+  console.log("triangulated delaunay!");
 
-  errng.generate();
-  errng.pn.rgba = [0.7, 0.0, 0.0, 0.7]; // reddish
+  for (var i = 0; i < dlny.trngls.length; i++) {
+    var t = dlny.trngls[i];
+    t.rgba = [0.0, 0.0, 0.5, 0.3];
+    rndrr.mshs.push(t);
+    var ot = t.offset(-4.0);
+    ot.rgba = [1.0, 0.0, 0.0, 0.5];
+    rndrr.mshs.push(ot);
+  }
 
-  rndrr.mshs.push(errng.pn);
-
-  console.log("buffing earring");
 
   // rndrr.buff();
 
