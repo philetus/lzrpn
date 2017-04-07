@@ -8,7 +8,7 @@ var pointerDown = false;
 var anchorP = vec2.fromValues(128.0, 128.0);
 var lastP = vec2.create();
 var mn = vec2.fromValues(50.0, 50.0);
-var sz = vec2.fromValues(1200.0, 400.0);
+var sz = vec2.fromValues(800.0, 400.0);
 var mndst = 80.0;
 
 var dlny = null;
@@ -17,6 +17,9 @@ var dlny = null;
 function pwpw() {
   var cnvs = document.getElementById("lzrcnvs");
   rndrr = new lzr.rndrr(cnvs);
+
+  rndrr.zoom = vec2.fromValues(1.5, 1.5);
+  rndrr.setResolution();
 
   console.log("creating earring");
 
