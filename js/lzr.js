@@ -227,6 +227,27 @@ lzr.glbfr.prototype = {
       cs = cs.concat( rgba );
     }
 
+    console.log("color array: ", cs)
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, glbfr.glid );
+    gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(cs), gl.STATIC_DRAW );
+    return true;
+  },
+
+  loadGrdnt: function (gl, grdnt) {
+    var glbfr = this;
+    glbfr.itemSize = 4;
+    glbfr.numItems = grdnt.length;
+    if (glbfr.glid === null) glbfr.glid = gl.createBuffer();
+
+    var cs = [];
+    for (var i = 0; i < grdnt.length; i++) {
+      if (grdnt[i].length != 4) return false;
+      cs = cs.concat( grdnt[i] );
+    }
+
+    console.log("gradient array: ", cs)
+
     gl.bindBuffer( gl.ARRAY_BUFFER, glbfr.glid );
     gl.bufferData( gl.ARRAY_BUFFER, new Float32Array(cs), gl.STATIC_DRAW );
     return true;
@@ -239,7 +260,8 @@ lzr.glbfr.prototype = {
 
     return true;
   }
-}
+
+ }
 // --glbfr
 // ********
 
@@ -1341,6 +1363,7 @@ lzr.trngl = function (vrts, a, b, c) {
   trngl.vrts = vrts;
   trngl.dxs = [ a, b, c ];
   trngl.rgba = [0, 0, 1, 0.3];
+  trngl.grdnt = null;
   trngl.colorBuff = new lzr.glbfr();
   trngl.positionBuff = new lzr.glbfr();
 
@@ -1588,7 +1611,12 @@ lzr.trngl.prototype = {
 
     // write data to buffers
     trngl.positionBuff.loadTriangles( gl, trngl.vrts, ts );
-    trngl.colorBuff.loadColor( gl, trngl.positionBuff.numItems, trngl.rgba );
+    if (trngl.grdnt && trngl.grdnt.length === trngl.vrts.length) {
+      trngl.colorBuff.loadGrdnt( gl, trngl.grdnt );
+    } else {
+      trngl.colorBuff.loadColor( gl, trngl.positionBuff.numItems, trngl.rgba );
+    }
+    console.log(trngl.positionBuff.numItems, trngl.colorBuff.numItems);
   }
 }
 // --trngl
@@ -1696,6 +1724,7 @@ lzr.dlny = function () {
   dlny.omgs = null; // omega vertices containing all other vertices
   dlny.vrts = [];
   dlny.trngls = null;
+  dlny.cull_omgs = false;
 }
 
 lzr.dlny.prototype = {
@@ -1864,18 +1893,20 @@ lzr.dlny.prototype = {
     }
 
     // remove omega vertices & triangles
-    for (var i = 0; i < 4; i++) dlny.vrts.pop();
-    var ntrngls = [];
-    l = dlny.vrts.length;
-    for (var i = 0; i < dlny.trngls.length; i++) {
-      var trngl = dlny.trngls[i];
-      var is_omg = false;
-      for (var j = 0; j < trngl.dxs.length; j++)
-        if (trngl.dxs[j] >= l)
-          is_omg = true;
-      if (!is_omg) ntrngls.push(trngl);
+    if (dlny.cull_omgs) {
+      for (var i = 0; i < 4; i++) dlny.vrts.pop();
+      var ntrngls = [];
+      l = dlny.vrts.length;
+      for (var i = 0; i < dlny.trngls.length; i++) {
+        var trngl = dlny.trngls[i];
+        var is_omg = false;
+        for (var j = 0; j < trngl.dxs.length; j++)
+          if (trngl.dxs[j] >= l)
+            is_omg = true;
+        if (!is_omg) ntrngls.push(trngl);
+      }
+      dlny.trngls = ntrngls;
     }
-    dlny.trngls = ntrngls;
 
     return true;
   }

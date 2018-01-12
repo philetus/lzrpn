@@ -4,6 +4,7 @@ var rng = null;
 var mnOff = 0.0;
 var mxOff = 128.0;
 var offset = 0.0;
+var cover = 100;
 var pointerDown = false;
 var anchorP = vec2.fromValues(128.0, 128.0);
 var lastP = vec2.create();
@@ -12,37 +13,37 @@ var sz = vec2.fromValues(800.0, 400.0);
 var mndst = 80.0;
 
 var dlny = null;
-
+var ots = [];
 
 function pwpw() {
   var cnvs = document.getElementById("lzrcnvs");
   rndrr = new lzr.rndrr(cnvs);
 
-  rndrr.zoom = vec2.fromValues(1.5, 1.5);
+  rndrr.zoom = vec2.fromValues(1.0, 1.0);
   rndrr.setResolution();
 
-  console.log("creating earring");
+  console.log("creating triangle mesh");
 
   var dlny = new lzr.dlny();
   var i = 0;
   var attmpts = 0;
   // while (i < 17 && attmpts < 10000) {
-  while (attmpts < 10000) {
+  while (attmpts < 1000) {
     attmpts++;
     var vrt = vec2.fromValues(
-       (Math.random() * sz[0]) + mn[0],
-       (Math.random() * sz[1]) + mn[1]);
+       (Math.random() * (rndrr.cnvs.width + mndst * 2)) - mndst,
+       (Math.random() * (rndrr.cnvs.height + mndst * 2)) - mndst);
     var clst = dlny.get_closest(vrt);
     if (clst === null || vec2.dist(vrt, clst) > mndst) {
       dlny.vrts.push(vrt);
       console.log(i + " " + vrt);
       var r = new lzr.rng();
-      r.rgba = [0.0, 1.0, 0.0, 0.5]; // reddish
+      r.rgba = [0.0, 1.0, 0.0, 0.5]; // greenish
       r.center = vec2.clone(vrt);
       r.radius = 16.0;
       r.weight = 6.0;
       r.segments = 32;
-      rndrr.mshs.push(r);
+      // rndrr.mshs.push(r);
       i++;
     }
   }
@@ -56,10 +57,14 @@ function pwpw() {
 
   for (var i = 0; i < dlny.trngls.length; i++) {
     var t = dlny.trngls[i];
-    t.rgba = [0.0, 0.0, 0.5, 0.3];
-    rndrr.mshs.push(t);
-    var ot = t.offset(-4.0);
-    ot.rgba = [1.0, 0.0, 0.0, 0.5];
+    // t.rgba = [0.0, 0.0, 0.5, 0.3];
+    // rndrr.mshs.push(t);
+    var ot = t.offset(-0.5);
+    ot.grdnt = [ 
+      [1.0, 0.0, 0.0, 0.5], 
+      [0.0, 1.0, 1.0, 0.5], 
+      [0.0, 1.0, 1.0, 0.5] ];
+    ots.push(ot);
     rndrr.mshs.push(ot);
   }
 
@@ -150,6 +155,21 @@ function pwpw() {
 
   rndrr.buff(); // build mesh buffers, call after changing meshes
   rndrr.render(); // draw meshes
+
+  rllGrdnt();
+}
+
+var d0 = 1.0, d1 = 1.0;
+function rllGrdnt() {
+  for (var i = 0; i < ots.length; i++) {
+    ots[i].grdnt[1][1] += 0.011 * d0;
+    if (ots[i].grdnt[1][1] > 1.0 || ots[i].grdnt[1][1] < 0.0) d0 = -d0;
+    ots[i].grdnt[2][0] += 0.03 * d1;
+    if (ots[i].grdnt[2][0] > 1.0 || ots[i].grdnt[2][0] < 0.0) d1 = -d1;
+  }
+  rndrr.buff(); // build mesh buffers, call after changing meshes
+  rndrr.render(); // draw meshes
+  setTimeout(rllGrdnt, 100);
 }
 
 function onWindowResize() {
